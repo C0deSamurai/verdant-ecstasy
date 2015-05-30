@@ -12,6 +12,16 @@ from tile import *
 init = Coordinate.initialize_from_string
 
 
+def init_word(wordstring):
+    """Convenience function that takes a string and returns a Word
+    equivalent to the string with spaces as None"""
+    word = []
+    for letter in wordstring:
+        word.append(Tile(letter) if letter != " " else None)
+
+    return word
+
+
 def play_word(board, wordstring, wordcoord="8H"):
     """Convenience function that takes a given Board, a given string that is
     the word to play, and a string for the coordinate, and returns the score."""
@@ -19,8 +29,6 @@ def play_word(board, wordstring, wordcoord="8H"):
     for letter in wordstring:
         word.append(Tile(letter) if letter != " " else None)
     coord = Coordinate.initialize_from_string(wordcoord)
-    print("{} was counted for {} points".format(wordstring,
-        board.count_word(word, coord)))
     print("{} was played for {}".format(
             "".join([str(t) for t in word]), board.play_word(word, coord)))
 

@@ -6,6 +6,7 @@ that allow you to add new Tiles, remove Tiles, move Tiles, score words, etc.
 
 from constants import NON, DLS, DWS, TLS, TWS
 from constants import BOARD_LAYOUT
+import coordinate
 
 BOARD_SIZE = 15
 
@@ -29,6 +30,14 @@ class Board:
     def get_tile(self, coordinate):
         """Returns the tile at the specified coordinate or None"""
         return self.__tiles[coordinate.get_row()][coordinate.get_col()]
+
+    def safe_get_tile(self, coordinate):
+        """Returns the tile at the specified coordinate but returns None
+        if the coordinate is None"""
+        try:
+            return self.__tiles[coordinate.get_row()][coordinate.get_col()]
+        except AttributeError:
+            return None
     
     def get_bonus(self, coordinate):
         """
@@ -87,10 +96,7 @@ class Board:
             else:
                 if self.get_tile(current_coord) is not None:
                     return False
-            print(str((current_coord.get_col() <=
-                    coordinate.get_col() + len(word) - 1)))
-            print("Tried {}".format(tile))
-            print(word.index(tile))
+
             current_coord = current_coord.safe_increment()
         return True
         
@@ -113,131 +119,81 @@ class Board:
 
     def count_word(self, word, coordinate):
         """Scores a word, NOT including parallel plays."""
-        current_coord = coordinate #track our place in the word
+        current_coord = coordinate  # track our place in the word
         score = 0
         word_multiplier = 1  # to keep track of word multipliers
         
-        for tile in word:  # score the main play first
-            print("Playing '{}' at {}".format(str(tile), str(current_coord)))
-            if tile is None:  # just score the letter value
-                existing_tile = self.get_tile(current_coord)
-                score += (existing_tile.get_value() *
-                            self.get_letter_multiplier(current_coord))
-            else:
-                word_multiplier *= self.get_word_multiplier(current_coord)
-                score += (tile.get_value() *
-                            self.get_letter_multiplier(current_coord))
-            try:
-                #print("Increment {}".format(str(current_coord)))
-                current_coord = current_coord.increment()
-            except ValueError:
-                pass  # went over the border, but fine: if real error, will
-                      # get thrown in next loop run
+        for tile in word:
+            if tile is None: # just count letter value then move on
+                score += self.get_tile(current_coord).get_value()
             
-        score *= word_multiplier
-        # add bingo bonus
-        if len([letter for letter in word if letter is not None]) == 7:
+            else:
+                score += (self.get_letter_multiplier(current_coord) *
+                            tile.get_value())
+        
+                word_multiplier *= self.get_word_multiplier(current_coord)
+            
+            current_coord = current_coord.safe_increment()
+
+        score *= word_multiplier  # update score with word bonuses
+        # check for bingo bonus
+        if len([tile for tile in word if tile is not None]) == 7:
             score += 50
+
         return score
     
     def score_word(self, word, coordinate):
-        """Scores the given word, including parallel plays. Raises ValueError
-        if the word cannot play in the given space."""
+        """Scores the given word, including parallel plays."""
         
-        current_coord = coordinate  # track our place in the word    
-        total_score = self.count_word(word, coordinate)  # score the main word
-        word_multiplier = 1
-        
-        if coordinate.is_horizontal():  #parallel plays will be in columns
-            # for all columns, find parallel plays and score them
-            while (current_coord is not None and current_coord.get_row() <=
-                    coordinate.get_row() + len(word) - 1):
-                print("Checking coordinate {}".format(current_coord))
-                score = 0
-                # check above the word for parallel plays, avoiding ValueError
-                above_coord = current_coord.safe_move_up()
-                
-                below_coord = current_coord.safe_move_down()
-                
-                # if there is a parallel play to check
-                if not (self.get_tile(above_coord) is None and
-                            self.get_tile(below_coord) is None):
+        current_coord = coordinate  # used for tracking
+        total_score = self.count_word(word, coordinate)  # count the main play
 
-                    word_multiplier *= self.get_word_multiplier(current_coord)
-                    print("Scoring column {} at row {}".format(
-                      current_coord.get_col(), current_coord.get_row()))
-                    # count the tiles below the world, including the actual word
-                    coord_below = current_coord
-                    # until the word ends                    
-                    while self.get_tile(coord_below) is not None:  
-                        score += (self.get_tile(coord_below).get_value() *
-                                    self.get_letter_multiplier(coord_below))
-                        print("Adding to score")
-                        coord_below = coord_below.safe_move_down()
+
+        if coordinate.is_horizontal():  # parallel plays in columns
+            for tile in word:
+                # if this is an existing tile, nothing needs to be done
+                if tile is None:
+                    pass
+
+                else:
+                    above_current = current_coord.safe_move_up()
+                    below_current = current_coord.safe_move_down()
                     
-                    # count the tiles above the word
-                    coord_above = current_coord.safe_move_up()
-                    # until the word stops
-                    while self.get_tile(coord_above) is not None: 
-                        score += (self.get_tile(coord_above).get_value() *
-                                    self.get_letter_multiplier(coord_above))
-
-                        coord_above = coord_above.safe_move_up()
-                    total_score += word_multiplier * score
-
-                
-                #print(str(coordinate) + "----")
-                print("The coordinate is " + str(current_coord))
-                print(str((current_coord.get_col() <=
-                    coordinate.get_col() + len(word) - 1)))
-                #print("The score is " + str(total_score))
-                #print("Above_tile is " + str(above_tile))
-                #print("Below_tile is " + str(below_tile))
-                current_coord = current_coord.safe_increment()
-        else:  # parallel plays in the rows
-            # for all rows, find the parallel plays
-            while (current_coord is not None and
-                    current_coord.get_row() <=
-                    coordinate.get_row() + len(word) - 1):
-                score = 0
-                print("Checking coordinate {}".format(current_coord))
-                # check above the word for parallel plays
-                left_coord = current_coord.safe_move_left()
-                
-                right_coord = current_coord.safe_move_right()
-                
-                # if there is a parallel play to check
-                if not (self.get_tile(left_coord) is None and
-                            self.get_tile(right_coord) is None): 
-                    word_multiplier *= self.get_word_multiplier(current_coord)
-                    # count the tiles to the left of the world
-                    # including the actual word
-                    coord_left = current_coord 
-                    # until the word stops
-                    while self.get_tile(coord_left) is not None:
-                        score += (self.get_tile(coord_left).get_value() *
-                                    self.get_letter_multiplier(coord_left))
-                        print("Adding {} to score".format(
-                            (self.get_tile(coord_left).get_value() *
-                                    self.get_letter_multiplier(coord_left))
-                        ))
-                        #print(coord_left)
-                        coord_left = coord_left.safe_move_left()
+                    # avoid error if on the border of the board
+                    above_tile = self.safe_get_tile(above_current)
+                    below_tile = self.safe_get_tile(below_current)
                     
-                    # count the tiles to the right of the word
-                    coord_right = current_coord.safe_move_right()
-                    # until the word stops
-                    while self.get_tile(coord_right) is not None:
-                        score += (self.get_tile(coord_right).get_value() *
-                                    self.get_letter_multiplier(coord_right))
-                        coord_right = coord_right.safe_move_right()
-                    total_score += word_multiplier * score
-
-                print("The coordinate is " + str(current_coord))
-                print(str((current_coord.get_col() <=
-                    coordinate.get_col() + len(word) - 1)))
-                #print("The score is " + str(total_score))
+                    # no parallel plays
+                    if above_tile is None and below_tile is None:
+                        pass
+                    else:
+                        word_multiplier = self.get_word_multiplier(current_coord)
+                        score = 0  # keep track of score for this parallel play
+                        # count the tile in the main word
+                        score += (self.get_letter_multiplier(current_coord) *
+                                    tile.get_value())
+                        
+                        # check for letters above the main word
+                        above = current_coord.safe_move_up()
+                        while (above is not None and
+                                self.get_tile(above) is not None):
+                            # no multipliers
+                            score += self.get_tile(above).get_value()
+                            above = above.safe_move_up()
+                        
+                        below = current_coord.safe_move_down()
+                        while (below is not None and
+                                self.get_tile(below) is not None):
+                            # no multipliers
+                            score += self.get_tile(below).get_value()
+                            below = below.safe_move_down()
+                        total_score += score  # update main score
+                # move along in word     
                 current_coord = current_coord.safe_increment()
+
+        else:  # just flip the board to run the algorithm
+            return self.flip().score_word(word, coordinate.flip())
+    
         return total_score
 
     def play_word(self, word, coordinate):
@@ -245,7 +201,17 @@ class Board:
         self.add_word(word, coordinate)
         return self.score_word(word, coordinate)
 
-    
+    def flip(self):
+        """
+        Returns a new Board with horizontal and vertical switched, like
+        a reflection over the line from A1 to O15"""
+        new_board = Board()
+        for i in range(15):
+            for j in range(15):
+                coord = coordinate.Coordinate(i, j, 0)  # direction doesn't matter
+                tile = self.get_tile(coord)
+                new_board.add_tile(tile, coord.flip())
+        return new_board
                 
                 
                 

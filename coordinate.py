@@ -74,6 +74,15 @@ class Coordinate:
         """Returns the row value from 0-14"""
         return self.__row
 
+    def flip(self):
+        """
+        Returns the Coordinate with reversed direction and row-column
+        "A7" -> "1G"
+        "9F" -> "I6"
+        """
+        return Coordinate(self.__row, self.__col, 1 - self.__direction)
+        
+    
     def increment(self):
         """
         Returns a new Coordinate moved one step in the direction of the

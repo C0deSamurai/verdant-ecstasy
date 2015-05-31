@@ -35,8 +35,4 @@ def play_word(board, wordstring, wordcoord="8H"):
 
 b = Board()
 c = Coordinate.initialize_from_string("9G")
-play_word(b, "HARPING")
-play_word(b, "ZAX", "9G")
-play_word(b, "SEQUINS", "10H")
-play_word(b, "GARNETS", "11C")
-play_word(b, " ATURE", "M10")
+p = play_word

@@ -1,0 +1,25 @@
+Players: New Player 1 (score 151), Quackle (score 123)
+
+   A B C D E F G H I J K L M N O 
+   ------------------------------
+ 1|=     '   H O S       '     =|
+ 2|  -       "   P   "       -  |
+ 3|    -       K A '       -    |
+ 4|'     -   H I S   B   -     '|
+ 5|        - E D     E -        |
+ 6|  "     E R S A T Z       "  |
+ 7|    '   N   '   ' E     '    |
+ 8|=     ' D E N I A L S '     =|
+ 9|    '     L A N D S     '    |
+10|  Q U I N S       "       "  |
+11|        -           -        |
+12|'     -       '       -     '|
+13|    -       '   '       -    |
+14|  -       "       "       -  |
+15|=     '       =       '     =|
+   ------------------------------
+
+Unseen: AAAAABCCDEEEEEFFGGGIIIIIIJLMMNNOOOOOOORRRRTTTTUUUVVWWXYY?? (58)
+
+New Player 1 to play with EELPRST
+

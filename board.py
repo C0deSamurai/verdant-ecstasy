@@ -187,7 +187,8 @@ class Board:
                             # no multipliers
                             score += self.get_tile(below).get_value()
                             below = below.safe_move_down()
-                        total_score += score  # update main score
+                        # update main score                        
+                        total_score += score * word_multiplier
                 # move along in word     
                 current_coord = current_coord.safe_increment()
 

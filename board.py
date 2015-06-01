@@ -143,7 +143,7 @@ class Board:
         return score
     
     def score_word(self, word, coordinate):
-        """Scores the given word, including parallel plays."""
+        """Scores the given move, including parallel plays."""
         
         current_coord = coordinate  # used for tracking
         total_score = self.count_word(word, coordinate)  # count the main play

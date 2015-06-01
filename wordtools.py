@@ -3,15 +3,15 @@ This class provides functions to work with strings that are oriented
 towards Scrabble: hooks, subanagrams, pattern matches, etc.
 """
 
-import anagram
+import base_anagram
 import wordlist
 from constants import ALPHABET
 
 
 """
-*****************************************
-ALL of these functions take ? as a blank.
-*****************************************
+******************************************************************************
+ALL of these functions take ? as a blank. Some take * as any number of blanks.
+******************************************************************************
 """
 
 def powerset(lst):
@@ -63,9 +63,23 @@ def subanagrams(word):
             subs += subanagrams(word.replace('?', letter, 1))
     else:
         for subset in powerset(word):  # gets every subset
-            subs += anagram.anagram(''.join(subset))
+            subs += anagram(''.join(subset))
     return subs
-    
+
+def anagram(word):
+    """
+    Anagrams a word, including blanks represented by '?':
+    Example:
+    "AEIRSTX?" -> "MATRIXES", "SEXTARII"
+    """
+    if '?' in word:  # blank needs to be replaced
+        anagrams = []  # to store all the anagrams
+        for letter in ALPHABET:
+            anagrams += anagram(word.replace('?', letter, 1))
+        return list(set(anagrams))  # remove repeats with the same set of blanks
+    else:
+        return base_anagram.anagram_without_blanks(word)
+
 def pattern_match(pattern):
     """
     Matches an exact pattern, with ? representing a single blank letter
@@ -105,7 +119,7 @@ def anagram_and_pattern_match(pattern, tileset):
     search_regex = search_regex.replace('*', asterisk_regex)
     
     return [x for x in wordlist.regex_search(search_regex) if x in
-                anagram.anagram(tileset)]
+                anagram(tileset)]
 
 def subanagram_and_pattern_match(pattern, tileset):
     """Quickly f inds all subanagrams of the tileset that match the pattern.

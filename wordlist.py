@@ -1,14 +1,15 @@
 """
 This file provides an easy interface to a list of dictionary words and
 a tool for searching the dictionary with a regex and checking a word
-for inclusion in the dictionary.
+for inclusion in the dictionary. Note that because of copyright issues,
+the OWL2 is used.
 """
 
 import os
 from re import findall
 
 
-FILENAME = "OWL3.txt"
+FILENAME = "OWL2.txt"
 
 dictionary = open(FILENAME)
 

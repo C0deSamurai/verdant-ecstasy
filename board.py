@@ -6,6 +6,7 @@ that allow you to add new Tiles, remove Tiles, move Tiles, score words, etc.
 
 from constants import NON, DLS, DWS, TLS, TWS
 from constants import BOARD_LAYOUT
+from move import Move
 import coordinate
 
 BOARD_SIZE = 15
@@ -107,6 +108,8 @@ class Board:
         ValueError if the word goes out of bounds, is completely overlapped
         by existing tiles, or has None in a spot where there is no existing
         tile.
+        
+        Returns a Move object that gives the move just made.
         """
         if not self.is_valid_word(word, coordinate):
             raise ValueError("Invalid word: overlapping or missing tiles")
@@ -116,6 +119,13 @@ class Board:
             if tile is not None:  # existing tile should not be there
                 self.add_tile(tile, current_coord)
             current_coord = current_coord.safe_increment()
+            
+        return Move.initialize_with_spaces(self, word, coordinate)
+
+    def remove_move(self, move):
+        """
+        Removes a given Move from the board, only 
+    
 
     def count_word(self, word, coordinate):
         """Scores a word, NOT including parallel plays."""

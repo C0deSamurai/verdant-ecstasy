@@ -6,8 +6,9 @@ that allow you to add new Tiles, remove Tiles, move Tiles, score words, etc.
 
 from constants import NON, DLS, DWS, TLS, TWS
 from constants import BOARD_LAYOUT
+import coordinate as coordinate_module
 from move import Move
-import coordinate
+
 
 BOARD_SIZE = 15
 
@@ -39,7 +40,14 @@ class Board:
             return self.__tiles[coordinate.get_row()][coordinate.get_col()]
         except AttributeError:
             return None
-    
+
+    def remove_tile(self, coordinate):
+        """
+        Removes the tile at the given coordinate: raises an error
+        if the square has nothing on it.
+        """
+        self.__tiles[coordinate.get_row()][coordinate.get_col()] = None
+
     def get_bonus(self, coordinate):
         """
         Returns the bonus square in particular space. The values mean:
@@ -83,14 +91,16 @@ class Board:
             string += '\n'
         return string
 
-    def is_valid_word(self, word, coordinate):
+    def is_valid_move(self, move):
         """Returns True if the play is possible (no spaces or overlapping tiles)
         and False otherwise."""
-        current_coord = coordinate  # track where we are in the word
+        current_coord = move.get_coord()  # track where we are in the word
+        word = move.get_just_played_tiles()
+        #print(word)
         for tile in word:
-           # print("Checking if {} can be played over {}".format(
-           #     str(tile), str(self.get_tile(current_coord)))
-           #)
+            #print("Checking if {} can be played over {}".format(
+            #     str(tile), str(self.get_tile(current_coord)))
+            #)
             if tile is None:  # existing tile SHOULD be there
                 if self.get_tile(current_coord) is None:
                     return False
@@ -101,17 +111,12 @@ class Board:
             current_coord = current_coord.safe_increment()
         return True
         
-    def add_word(self, word, coordinate):
-        """
-        Adds the given word (a list of Tiles with None to mark
-        existing tiles) to the board at the given coordinate, raising
-        ValueError if the word goes out of bounds, is completely overlapped
-        by existing tiles, or has None in a spot where there is no existing
-        tile.
-        
-        Returns a Move object that gives the move just made.
-        """
-        if not self.is_valid_word(word, coordinate):
+    def add_move(self, move):
+        """Adds the given move to the board."""
+        word = move.get_just_played_tiles()
+        coordinate = move.get_coord()
+
+        if not self.is_valid_move(move):
             raise ValueError("Invalid word: overlapping or missing tiles")
         
         current_coord = coordinate  # track where we are in the word
@@ -119,16 +124,26 @@ class Board:
             if tile is not None:  # existing tile should not be there
                 self.add_tile(tile, current_coord)
             current_coord = current_coord.safe_increment()
-            
-        return Move.initialize_with_spaces(self, word, coordinate)
 
     def remove_move(self, move):
-        """
-        Removes a given Move from the board, only 
+        """Removes a given Move from the board."""
+        current_coord = move.get_coord()
+
+        for index, tile in enumerate(move):
+            if move.was_just_played(index):
+                self.remove_tile(current_coord)
+            current_coord = current_coord.safe_increment()
     
 
-    def count_word(self, word, coordinate):
+    def count_move(self, move):
         """Scores a word, NOT including parallel plays."""
+        word_added = False  # flag  
+        if not self.is_move_present(move):  # move not on board
+            self.add_move(move)  # add the word
+            word_added = True  # flag
+
+        word = move.get_just_played_tiles()
+        coordinate = move.get_coord()
         current_coord = coordinate  # track our place in the word
         score = 0
         word_multiplier = 1  # to keep track of word multipliers
@@ -150,13 +165,23 @@ class Board:
         if len([tile for tile in word if tile is not None]) == 7:
             score += 50
 
+        if word_added:  # remove the word after done scoring it
+            self.remove_move(move)
+
         return score
     
-    def score_word(self, word, coordinate):
+    def score_move(self, move):
         """Scores the given move, including parallel plays."""
-        
+        # if the word isn't on the board, we add it then remove it again
+        word_added = False  # flag  
+        if not self.is_move_present(move):  # move not on board
+            self.add_move(move)  
+            word_added = True  # flag
+
+        word = move.get_just_played_tiles()
+        coordinate = move.get_coord()
         current_coord = coordinate  # used for tracking
-        total_score = self.count_word(word, coordinate)  # count the main play
+        total_score = self.count_move(move)  # count the main play
 
 
         if coordinate.is_horizontal():  # parallel plays in columns
@@ -203,14 +228,31 @@ class Board:
                 current_coord = current_coord.safe_increment()
 
         else:  # just flip the board to run the algorithm
-            return self.flip().score_word(word, coordinate.flip())
-    
+            return self.flip().score_move(move.flip())
+
+        if word_added:  # remove the word after done scoring it
+            self.remove_move(move)
+            pass
+
         return total_score
 
-    def play_word(self, word, coordinate):
+    def play_move(self, move):
         """Adds the word to the board and returns the score"""
-        self.add_word(word, coordinate)
-        return self.score_word(word, coordinate)
+        self.add_move(move)
+        return self.score_move(move)
+
+    def is_move_present(self, move):
+        """Returns True if the move is present and False otherwise"""
+        #print("is_move_present called")
+        coordinate = move.get_coord()
+        current_coord = coordinate
+        
+        for tile in move:
+            #print("Testing tile {} against board space {}".format(self.get_tile(current_coord), tile))
+            if self.get_tile(current_coord) != tile:
+                return False
+            current_coord = current_coord.safe_increment()
+        return True
 
     def flip(self):
         """
@@ -219,19 +261,8 @@ class Board:
         new_board = Board()
         for i in range(15):
             for j in range(15):
-                coord = coordinate.Coordinate(i, j, 0)  # direction doesn't matter
+                coord = coordinate_module.Coordinate(i, j, 0)
+                # direction doesn't matter
                 tile = self.get_tile(coord)
                 new_board.add_tile(tile, coord.flip())
         return new_board
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                

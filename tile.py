@@ -31,13 +31,29 @@ class Tile:
         self.__face = face
     
     def __repr__(self):
-        """Returns the face of the tile"""
-        return self.__face
+        """Returns the face of the tile, uppercase if normal, lower if blank"""
+        if self.__type == '?':
+            return self.__face.lower()
+        else:
+            return self.__face
 
     def __str__(self):
-        """Returns the face of the tile"""
-        return self.__face
+        """Returns the face of the tile, uppercase if normal, lower if blank"""
+        if self.__type == '?':
+            return self.__face.lower()
+        else:
+            return self.__face
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return (self.__face == other.__face and self.__type == other.__type)
+    
     def get_value(self):
         """Returns the point value of the tile"""
         return self.__value
+
+    def is_blank(self):
+        """Returns True if this is a blank and False otherwise."""
+        return self.__type == '?'
+

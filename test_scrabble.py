@@ -7,32 +7,28 @@ Intended to be run as a file in the interpreter
 from board import *
 from constants import *
 from coordinate import *
+from move import Move
 from tile import *
 
-init = Coordinate.initialize_from_string
 
-
-def init_word(wordstring):
-    """Convenience function that takes a string and returns a Word
-    equivalent to the string with spaces as None"""
-    word = []
-    for letter in wordstring:
-        word.append(Tile(letter) if letter != " " else None)
-
-    return word
 
 
 def play_word(board, wordstring, wordcoord="8H"):
     """Convenience function that takes a given Board, a given string that is
     the word to play, and a string for the coordinate, and returns the score."""
-    word = []
-    for letter in wordstring:
-        word.append(Tile(letter) if letter != " " else None)
-    coord = Coordinate.initialize_from_string(wordcoord)
-    print("{} was played for {}".format(
-            "".join([str(t) for t in word]), board.play_word(word, coord)))
+    move = Move(wordstring, wordcoord)
+    score = board.play_move(move)
+    print("{} was played for {} points".format(move, score))
 
 
 b = Board()
 c = Coordinate.initialize_from_string("9G")
-p = play_word
+init = Coordinate.initialize_from_string
+play_word(b, "HARPING")
+play_word(b, "ZAX", "9G")
+play_word(b, "SEQUINS", "10H")
+play_word(b, "GARNETS", "11C")
+play_word(b, "(N)ATURE", "M10")
+
+print("The board after these plays:\n")
+print(b)

@@ -130,6 +130,14 @@ class Coordinate:
         else:
             return LETTERS[self.__col] + str(self.__row + 1)
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return (self.__row == other.__row and
+                    self.__col == other.__col and
+                    self.__direction == other.__direction)
+    
+
     def move_up(self):
         """
         Returns the Coordinate moved up by 1 space, throws ValueError if

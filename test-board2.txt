@@ -1,0 +1,25 @@
+Players: Quackle (score 194), New Player 1 (score 143)
+
+   A B C D E F G H I J K L M N O 
+   ------------------------------
+ 1|=     '       =       '     =|
+ 2|  -       "       "       -  |
+ 3|    -       '   '       -    |
+ 4|'     -       '       -     '|
+ 5|        -           -        |
+ 6|  "       "       "       "  |
+ 7|    '       '   '       '    |
+ 8|=     '       H A R P I N G =|
+ 9|    '       Z A X       '    |
+10|  "       "   S E Q U I N S  |
+11|    G A R N E T S   -   A    |
+12|'     -       '       - T   '|
+13|    -       '   '       U    |
+14|  -       "       "     R -  |
+15|=     '       =       ' E   =|
+   ------------------------------
+
+Unseen: AAAAABBCDDEEEEEEEEEFFGHIIIIIIJKLLLMMNNNOOOOOOORRRSTTTTUUVVWWYY?? (64)
+
+New Player 1 to play with CDDILOP
+

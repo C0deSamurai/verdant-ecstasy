@@ -6,6 +6,7 @@ in a bag and a list of every letter in the alphabet and '?'.
 """
 
 from string import ascii_uppercase
+import tile as tile_mod
 
 ALPHABET = ascii_uppercase
 ALPHABET_WITH_Q_MARK = ascii_uppercase + "?"
@@ -92,6 +93,26 @@ TILE_BAG = []
 
 # add tiles based on previous distribution
 
+def make_unique(iterable):
+    """Used to remove duplicates from lists with unhashable elements"""
+    unique_list = []
+    for element in iterable:
+        if element not in unique_list:
+            unique_list.append(element)
+        else:
+            continue
+    return unique_list
+
 for tile in ALPHABET:
     for i in range(TILE_COUNTS[tile]):
-        TILE_BAG.append(tile)
+        TILE_BAG.append(tile_mod.Tile(tile))
+
+TILE_BAG_WITH_BLANK = []
+
+for tile in ALPHABET_WITH_Q_MARK:
+    for i in range(TILE_COUNTS[tile]):
+        TILE_BAG_WITH_BLANK.append(tile_mod.Tile(tile))
+
+TILE_LIST = make_unique(TILE_BAG)
+
+TILE_LIST_WITH_BLANK = make_unique(TILE_BAG)

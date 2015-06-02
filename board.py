@@ -266,3 +266,18 @@ class Board:
                 tile = self.get_tile(coord)
                 new_board.add_tile(tile, coord.flip())
         return new_board
+
+
+################################################
+# The following provides support for iteration #
+# and the immutable container protocol         #
+################################################
+
+    def __len__(self):
+        return len(self.__tiles)
+
+    def __iter__(self):
+        return iter(self.__tiles)
+
+    def __reversed__(self):
+        return reversed(self.__tiles)

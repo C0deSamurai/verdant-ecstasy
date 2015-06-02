@@ -4,21 +4,23 @@ of a Tile is a capital letter A-Z or ? for blanks. You can choose what a blank
 is set to by calling set_face, but for non-blank tiles this will return
 an error. Tiles are immutable and you should make a new Tile instead of
 changing an existing one.
+
+Note: blanks are sorted as after every other letter of the alphabet.
 """
 
-from constants import ALPHABET_WITH_Q_MARK  # with ? added
-from constants import TILE_VALUES
+import constants
+from functools import total_ordering
 
-
+@total_ordering
 class Tile:
     """This class models a Scrabble tile."""
     def __init__(self, tile_type):
         "tile_type is a character A-Z or '?' for blanks"
-        if tile_type not in ALPHABET_WITH_Q_MARK:
+        if tile_type not in constants.ALPHABET_WITH_Q_MARK:
             raise ValueError("tile_type must be in A-Z or '?'")
         self.__type = tile_type
         self.__face = tile_type  # represents the face of the tile
-        self.__value = TILE_VALUES[tile_type]
+        self.__value = constants.TILE_VALUES[tile_type]
 
     def set_face(self, face):
         """
@@ -26,7 +28,7 @@ class Tile:
         If self's type is not '?', this will raise a TypeError.
         """
         # Note that ? is an acceptable face, representing a blank face.
-        if face not in ALPHABET_WITH_Q_MARK:
+        if face not in constants.ALPHABET_WITH_Q_MARK:
             raise ValueError("Face must be A-Z or '?'")
         self.__face = face
     
@@ -43,6 +45,16 @@ class Tile:
             return self.__face.lower()
         else:
             return self.__face
+
+    def __lt__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        if self.__type == '?' and other.__type != '?':
+            return False
+        elif self.__type != '?' and other.__type == '?':
+            return False
+        else:
+            return self.__face < other.__face
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
